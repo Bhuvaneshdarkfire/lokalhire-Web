@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './style.css'
 
@@ -43,9 +43,21 @@ function CandidateRow({ candidate, index, onAction }) {
 }
 
 function JobDialog({ job, onClose, onApply }) {
+  const closeButtonRef = useRef(null)
+
+  useEffect(() => {
+    if (!job) return undefined
+    closeButtonRef.current?.focus()
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [job, onClose])
+
   if (!job) return null
   return <div className="job-dialog-backdrop" role="presentation" onClick={onClose}><section className="job-dialog" role="dialog" aria-modal="true" aria-labelledby="job-dialog-title" onClick={(event) => event.stopPropagation()}>
-    <button className="dialog-close" type="button" aria-label="Close job details" onClick={onClose}>&#215;</button><span className="eyebrow">{job.tag} - {job.distance}</span><h3 id="job-dialog-title">{job.role}</h3><p className="company">{job.company}</p>
+    <button ref={closeButtonRef} className="dialog-close" type="button" aria-label="Close job details" onClick={onClose}>&#215;</button><span className="eyebrow">{job.tag} - {job.distance}</span><h3 id="job-dialog-title">{job.role}</h3><p className="company">{job.company}</p>
     <p className="dialog-copy">A nearby opportunity matched to your skills, schedule, and preferred commute.</p><div className="dialog-meta"><strong>{job.pay}<small>/month</small></strong><span>{job.match} match</span></div>
     <button className="solid-button" type="button" onClick={onApply}>Start application <span className="arrow">&#8599;</span></button>
   </section></div>
@@ -80,8 +92,8 @@ function App() {
   const notify = (message) => { setToast(message); window.clearTimeout(window.lokalhireToast); window.lokalhireToast = window.setTimeout(() => setToast(''), 2600) }
   const links = [['Why Lokalhire', '#why'], ['How it works', '#how'], ['Product', '#product'], ['Stories', '#stories']]
   return <div className="page-shell"><div className="top-note"><span><span className="live-dot" /> Live pilot  -  Available in your area</span><span className="top-note-right">Built for the people who keep a neighbourhood moving &#8599;</span></div>
-    <header className="site-header"><a className="brand" href="#top" aria-label="Lokalhire home"><span className="brand-mark">L</span><span>LOKAL<span>HIRE</span></span></a><nav className="desktop-nav" aria-label="Main navigation">{links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</nav><div className="header-actions"><button className={`availability-toggle ${available ? 'on' : ''}`} type="button" onClick={() => { setAvailable(!available); notify(available ? 'You are now hidden from employers' : 'You are now available for opportunities') }}><span className="toggle-dot" />{available ? 'Available' : 'Paused'}</button><a className="ghost-button" href="#product">View product</a><a className="solid-button" href="#start">Get started <span className="arrow">&#8599;</span></a><button className="menu-button" type="button" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}></button></div></header>
-    <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>{links.map(([label, href]) => <a href={href} key={label} onClick={() => setMenuOpen(false)}>{label}</a>)}</div>
+    <header className="site-header"><a className="brand" href="#top" aria-label="Lokalhire home"><span className="brand-mark">L</span><span>LOKAL<span>HIRE</span></span></a><nav className="desktop-nav" aria-label="Main navigation">{links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</nav><div className="header-actions"><button className={`availability-toggle ${available ? 'on' : ''}`} type="button" onClick={() => { setAvailable(!available); notify(available ? 'You are now hidden from employers' : 'You are now available for opportunities') }}><span className="toggle-dot" />{available ? 'Available' : 'Paused'}</button><a className="ghost-button" href="#product">View product</a><a className="solid-button" href="#start">Get started <span className="arrow">&#8599;</span></a><button className="menu-button" type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-controls="mobile-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}></button></div></header>
+    <nav id="mobile-navigation" className={`mobile-menu ${menuOpen ? 'open' : ''}`} aria-label="Mobile navigation" aria-hidden={!menuOpen}>{links.map(([label, href]) => <a href={href} key={label} tabIndex={menuOpen ? 0 : -1} onClick={() => setMenuOpen(false)}>{label}</a>)}</nav>
     <main id="top"><section className="hero section-wrap"><div className="hero-copy"><Kicker>Hyperlocal hiring, human-sized</Kicker><h1>Good work<br /><em>is closer</em><br />than you think.</h1><p className="hero-intro">LOKALHIRE helps people find meaningful work around the corner, and helps local businesses meet the right person before the day gets away.</p><div className="hero-actions"><a className="solid-button large" href="#product">Explore the product <span className="arrow">&#8599;</span></a><a className="underlined-link" href="#how">See how it works <span>&#8595;</span></a></div><div className="hero-proof"><div className="proof-avatars"><span>AK</span><span>SS</span><span>VG</span><span className="more">+</span></div><p><strong>1,200+ local businesses</strong><br />already building their teams nearby</p></div></div><div className="hero-visual" aria-label="Lokalhire product preview"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="pin-card pin-card-one"><span>24</span><small>open roles<br />near you</small></div><div className="pin-card pin-card-two"><span>94%</span><small>best match<br />for your skills</small></div><PhonePreview /></div></section>
       <section className="ticker"><div className="ticker-inner"><span>LOCAL FIRST</span><i>*</i><span>REAL PEOPLE</span><i>*</i><span>NO LONG COMMUTES</span><i>*</i><span>FASTER HIRING</span><i>*</i><span>LOCAL FIRST</span><i>*</i></div></section>
       <section className="section-wrap split-section" id="why"><div className="section-heading"><Kicker>Why Lokalhire</Kicker><h2>Every neighbourhood<br />has <em>untapped potential.</em></h2></div><div className="section-copy"><p>Traditional job platforms make local work feel far away. We make distance, trust, and timing part of the match from the start.</p><a className="underlined-link" href="#stories">Read our point of view <span>&#8599;</span></a></div></section>
