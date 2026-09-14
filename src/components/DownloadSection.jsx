@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Smartphone,
   Download,
@@ -21,20 +21,36 @@ import {
   ChevronDown,
   ChevronUp,
   Settings,
-  Shield
+  Shield,
+  Edit2
 } from 'lucide-react'
 
-// Default GitHub repository APK download link (customizable or overrideable)
-export const GITHUB_APK_URL = 'https://github.com/lokalhire/lokalhire-app/releases/latest/download/lokalhire.apk'
+// Official GitHub release APK download link
+export const DEFAULT_GITHUB_APK_URL = 'https://github.com/Bhuvaneshdarkfire/lokalhire-Web/releases/download/apk/LokalHire.apk'
 
-export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) {
+export function DownloadSection({ onNotify, customGithubUrl }) {
+  // Use provided release URL, or custom override
+  const [apkUrl, setApkUrl] = useState(() => {
+    const saved = localStorage.getItem('lokalhire_apk_url')
+    // If user previously saved the broken 404 URL in localStorage, migrate them to the real working URL
+    if (!saved || saved.includes('releases/latest/download') || saved.includes('lokalhire/lokalhire-app')) {
+      localStorage.setItem('lokalhire_apk_url', DEFAULT_GITHUB_APK_URL)
+      return DEFAULT_GITHUB_APK_URL
+    }
+    return saved || customGithubUrl || DEFAULT_GITHUB_APK_URL
+  })
+  
   const [phoneInput, setPhoneInput] = useState('')
   const [smsSending, setSmsSending] = useState(false)
   const [smsSent, setSmsSent] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
-  const [showInstallGuide, setShowInstallGuide] = useState(false)
-  const [apkUrl, setApkUrl] = useState(customGithubUrl)
-  const [editingUrl, setEditingUrl] = useState(false)
+  const [showInstallGuide, setShowInstallGuide] = useState(true)
+  const [isEditingLink, setIsEditingLink] = useState(false)
+  const [tempUrlInput, setTempUrlInput] = useState(apkUrl)
+
+  useEffect(() => {
+    localStorage.setItem('lokalhire_apk_url', apkUrl)
+  }, [apkUrl])
 
   const handleSendLink = (e) => {
     e.preventDefault()
@@ -54,8 +70,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
   }
 
   const handleDownloadApk = () => {
-    onNotify('⬇️ Initiating GitHub APK download: lokalhire.apk...')
-    // Open GitHub APK release URL in a clean tab or trigger direct download
+    onNotify('⬇️ Opening APK download link...')
     window.open(apkUrl, '_blank', 'noopener,noreferrer')
   }
 
@@ -66,12 +81,21 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
     setTimeout(() => setCopiedLink(false), 2000)
   }
 
+  const handleSaveCustomLink = (e) => {
+    e.preventDefault()
+    if (tempUrlInput.trim()) {
+      setApkUrl(tempUrlInput.trim())
+      setIsEditingLink(false)
+      onNotify('✅ Custom GitHub APK link saved!')
+    }
+  }
+
   return (
     <section id="download" className="py-16 sm:py-24 bg-white border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
             <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
             <span>Android APK v2.4.1 Released • iOS &amp; Play Store Coming Soon</span>
@@ -81,8 +105,24 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
           </h2>
           <p className="text-base text-slate-600 leading-relaxed">
             Get instant GPS notifications when nearby businesses post roles. 
-            Download the official Android APK directly from our GitHub releases.
+            Download the official Android APK directly from GitHub.
           </p>
+        </div>
+
+        {/* Verified Live Release Status Banner */}
+        <div className="max-w-4xl mx-auto mb-8 bg-emerald-50/90 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 text-xs text-emerald-950 shadow-xs">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-slate-900 flex items-center gap-2">
+              <span>Official GitHub Release Active</span>
+              <span className="bg-emerald-200/80 text-emerald-900 font-mono text-[10px] px-2 py-0.5 rounded-full font-bold">
+                tag: apk
+              </span>
+            </p>
+            <p className="text-slate-600 leading-relaxed">
+              Direct download configured to <code className="bg-white px-2 py-0.5 rounded border border-emerald-300 text-slate-900 font-mono font-semibold">LokalHire.apk</code> from <strong className="text-slate-800">Bhuvaneshdarkfire/lokalhire-Web</strong>. Tap Download APK below to install immediately.
+            </p>
+          </div>
         </div>
 
         {/* Main White Download Hub Container */}
@@ -96,7 +136,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                   Choose your preferred download method
                 </h3>
                 <p className="text-sm text-slate-600">
-                  Android APK available now via GitHub. Google Play Store and Apple iOS App Store releases are in certification.
+                  Android APK available now via GitHub. Google Play Store and Apple iOS App Store releases are currently in review.
                 </p>
               </div>
 
@@ -116,17 +156,17 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                             OFFICIAL GITHUB RELEASE
                           </span>
                           <span className="bg-emerald-100 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            v2.4.1 Stable (22.4 MB)
+                            v2.4.1 Stable
                           </span>
                           <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                             <ShieldCheck className="w-3 h-3 text-blue-600" /> Verified Clean
                           </span>
                         </div>
                         <h4 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
-                          Download lokalhire.apk
+                          Download LokalHire.apk
                         </h4>
                         <p className="text-xs text-slate-600 mt-0.5">
-                          Hosted securely on GitHub Releases • Instant install on all Android phones (8.0+)
+                          Instant install on all Android smartphones (Android 8.0+)
                         </p>
                       </div>
                     </div>
@@ -154,38 +194,65 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                   </div>
 
                   {/* GitHub URL configurator snippet */}
-                  <div className="mt-4 pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-                    <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis">
-                      <span className="font-semibold text-slate-700">Source:</span>
-                      <code className="text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-800 font-mono select-all">
-                        {apkUrl}
-                      </code>
+                  <div className="mt-4 pt-3 border-t border-slate-200/80 space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                      <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis max-w-[340px] sm:max-w-md">
+                        <span className="font-semibold text-slate-700 shrink-0">Target URL:</span>
+                        <code className="text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-800 font-mono truncate select-all">
+                          {apkUrl}
+                        </code>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleCopyLink}
+                          className="hover:text-emerald-700 font-semibold flex items-center gap-1 transition cursor-pointer"
+                        >
+                          {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedLink ? 'Copied' : 'Copy URL'}</span>
+                        </button>
+                        <span>•</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTempUrlInput(apkUrl)
+                            setIsEditingLink(!isEditingLink)
+                          }}
+                          className="text-blue-600 hover:text-blue-800 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          <span>{isEditingLink ? 'Close Editor' : 'Configure Link'}</span>
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        className="hover:text-emerald-700 font-semibold flex items-center gap-1 transition"
-                      >
-                        {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedLink ? 'Copied' : 'Copy URL'}</span>
-                      </button>
-                      <span>•</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const input = window.prompt('Enter your GitHub APK release URL:', apkUrl)
-                          if (input && input.trim()) {
-                            setApkUrl(input.trim())
-                            onNotify('✅ GitHub APK link updated!')
-                          }
-                        }}
-                        className="text-blue-600 hover:text-blue-800 font-semibold text-[11px] flex items-center gap-1"
-                      >
-                        <Settings className="w-3 h-3" />
-                        <span>Change Link</span>
-                      </button>
-                    </div>
+
+                    {/* Inline Link Editor Form */}
+                    {isEditingLink && (
+                      <form onSubmit={handleSaveCustomLink} className="p-3 bg-white rounded-xl border border-blue-200 space-y-2 animate-in fade-in">
+                        <label className="block text-[11px] font-bold text-slate-700">
+                          Paste your exact GitHub APK URL (Releases, Raw, or Repo):
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="url"
+                            value={tempUrlInput}
+                            onChange={(e) => setTempUrlInput(e.target.value)}
+                            placeholder="https://github.com/your-username/your-repo/releases/download/v1.0.0/lokalhire.apk"
+                            className="flex-1 text-xs border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-600"
+                            required
+                          />
+                          <button
+                            type="submit"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-4 py-2 rounded-lg transition"
+                          >
+                            Save Link
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-slate-500">
+                          Tip: In GitHub, go to <strong>Releases &gt; Create a new release</strong>, drag and drop <code className="text-slate-800 font-mono">lokalhire.apk</code> into the release binary assets box, and publish. Then copy that download link here.
+                        </p>
+                      </form>
+                    )}
                   </div>
                 </div>
 
@@ -200,7 +267,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                     <div>
                       <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">GET IT ON</div>
                       <div className="text-base font-bold text-slate-900">Google Play</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">Under Review</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">Console Review</div>
                     </div>
                   </div>
 
@@ -220,7 +287,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                     <div>
                       <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">DOWNLOAD ON THE</div>
                       <div className="text-base font-bold text-slate-900">App Store</div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">iOS 16.0+ Build</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">TestFlight Stage</div>
                     </div>
                   </div>
 
@@ -245,13 +312,9 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                     onClick={() => setShowInstallGuide(!showInstallGuide)}
                     className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
                   >
-                    {showInstallGuide ? 'Hide Steps' : 'View Full Guide'}
+                    {showInstallGuide ? 'Hide Steps' : 'View Steps'}
                   </button>
                 </div>
-
-                <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                  Installing directly from GitHub gives you immediate access to verified local job openings before the Play Store rollout.
-                </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {/* Step 1 */}
@@ -262,10 +325,10 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                       </span>
                       <h5 className="text-xs font-bold text-slate-900">Download APK</h5>
                       <p className="text-[11px] text-slate-600 mt-1 leading-normal">
-                        Tap <strong>"Download APK"</strong> above or visit our GitHub Releases page. Tap "Download anyway" if Chrome shows a standard warning.
+                        Tap <strong>"Download APK"</strong>. If Chrome shows <em>"File might be harmful"</em>, tap <strong>"Download anyway"</strong>.
                       </p>
                     </div>
-                    <span className="text-[10px] text-emerald-700 font-semibold mt-2">File: lokalhire.apk</span>
+                    <span className="text-[10px] text-emerald-700 font-semibold mt-2">File: LokalHire.apk</span>
                   </div>
 
                   {/* Step 2 */}
@@ -274,12 +337,12 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                       <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold mb-2 shadow-xs">
                         2
                       </span>
-                      <h5 className="text-xs font-bold text-slate-900">Allow Unknown Sources</h5>
+                      <h5 className="text-xs font-bold text-slate-900">Allow Installation</h5>
                       <p className="text-[11px] text-slate-600 mt-1 leading-normal">
-                        When opening the file, tap <strong>Settings</strong> &gt; toggle <strong>"Allow from this source"</strong> (for Chrome / Files app).
+                        Open the file &gt; tap <strong>Settings</strong> &gt; enable <strong>"Allow from this source"</strong> (for Chrome or Files).
                       </p>
                     </div>
-                    <span className="text-[10px] text-blue-700 font-semibold mt-2">Standard Android Security</span>
+                    <span className="text-[10px] text-blue-700 font-semibold mt-2">Android Security</span>
                   </div>
 
                   {/* Step 3 */}
@@ -290,31 +353,22 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                       </span>
                       <h5 className="text-xs font-bold text-slate-900">Install &amp; Log In</h5>
                       <p className="text-[11px] text-slate-600 mt-1 leading-normal">
-                        Tap <strong>"Install"</strong>, then tap <strong>"Open"</strong>. Enter your phone number to sign in and activate your local radar!
+                        Tap <strong>"Install"</strong>, then tap <strong>"Open"</strong>. Enter your phone number to start browsing local opportunities!
                       </p>
                     </div>
-                    <span className="text-[10px] text-indigo-700 font-semibold mt-2">Ready in ~15 seconds</span>
+                    <span className="text-[10px] text-indigo-700 font-semibold mt-2">Ready in seconds</span>
                   </div>
                 </div>
 
-                {/* Additional tips if user expanded the guide */}
+                {/* Additional tips */}
                 {showInstallGuide && (
                   <div className="mt-4 pt-4 border-t border-slate-200 space-y-2 text-xs text-slate-600 animate-in fade-in">
                     <div className="flex items-start gap-2 bg-blue-50/70 p-3 rounded-xl border border-blue-100">
                       <Shield className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                       <div>
-                        <strong className="text-slate-900 font-semibold">Why does Android show a warning?</strong>
+                        <strong className="text-slate-900 font-semibold">Standard Android Verification:</strong>
                         <p className="text-[11px] text-slate-600 mt-0.5">
-                          Android displays a standard prompt for any app downloaded outside the Play Store. Lokalhire's APK is signed, SHA-256 validated, virus-free, and contains zero trackers.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="text-slate-900 font-semibold">Automatic Update Notifications:</strong>
-                        <p className="text-[11px] text-slate-600 mt-0.5">
-                          Once installed, the app checks our GitHub release channel automatically so you never miss new features.
+                          Android displays a standard notice for APKs installed directly from GitHub. The LOKALHIRE APK is signed, lightweight, and verified virus-free.
                         </p>
                       </div>
                     </div>
@@ -325,7 +379,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
               {/* Send App Link via SMS / WhatsApp */}
               <div className="bg-white p-5 rounded-2xl border border-slate-200">
                 <div className="text-sm font-bold text-slate-900 mb-1">
-                  Send GitHub APK link directly to your phone
+                  Send APK link directly to your phone
                 </div>
                 <div className="text-xs text-slate-500 mb-3">
                   Enter your mobile number to receive the direct download link via WhatsApp / SMS:
@@ -381,7 +435,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                   <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">Camera Ready</span>
                 </div>
 
-                {/* Crisp SVG QR Code pointing directly to GitHub APK download */}
+                {/* Crisp SVG QR Code pointing directly to APK download */}
                 <div
                   className="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mx-auto group cursor-pointer hover:border-emerald-500 transition-colors"
                   onClick={handleDownloadApk}
@@ -460,7 +514,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                     Scan with your Android phone
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    Directly downloads <strong>lokalhire.apk</strong> from GitHub
+                    Directly downloads <strong>LokalHire.apk</strong>
                   </div>
                 </div>
 
@@ -477,7 +531,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Copy GitHub APK Link</span>
+                      <span>Copy Download Link</span>
                     </>
                   )}
                 </button>
@@ -487,7 +541,7 @@ export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) 
               <div className="mt-4 flex flex-col gap-1.5 text-xs text-slate-500 text-center">
                 <span className="flex items-center justify-center gap-1 text-slate-700 font-medium">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  GitHub Release • Verified SHA-256 Checksum
+                  GitHub Release • Verified SHA-256
                 </span>
                 <span>Requires Android 8.0 (Oreo) or higher</span>
               </div>

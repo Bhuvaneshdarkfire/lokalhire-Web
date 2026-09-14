@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Smartphone,
   Download,
@@ -12,22 +12,43 @@ import {
   CheckCircle2,
   ExternalLink,
   HelpCircle,
-  Clock
+  Clock,
+  Edit2
 } from 'lucide-react'
-import { GITHUB_APK_URL } from './DownloadSection'
+import { DEFAULT_GITHUB_APK_URL } from './DownloadSection'
 
-export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl = GITHUB_APK_URL }) {
+export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl }) {
+  const [apkUrl, setApkUrl] = useState(() => {
+    const saved = localStorage.getItem('lokalhire_apk_url')
+    if (!saved || saved.includes('releases/latest/download') || saved.includes('lokalhire/lokalhire-app')) {
+      localStorage.setItem('lokalhire_apk_url', DEFAULT_GITHUB_APK_URL)
+      return DEFAULT_GITHUB_APK_URL
+    }
+    return saved || customGithubUrl || DEFAULT_GITHUB_APK_URL
+  })
   const [copied, setCopied] = useState(false)
   const [phone, setPhone] = useState('')
   const [sent, setSent] = useState(false)
   const [showGuide, setShowGuide] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [tempUrl, setTempUrl] = useState(apkUrl)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('lokalhire_apk_url')
+    if (saved && !saved.includes('releases/latest/download') && !saved.includes('lokalhire/lokalhire-app')) {
+      setApkUrl(saved)
+    } else {
+      setApkUrl(DEFAULT_GITHUB_APK_URL)
+      localStorage.setItem('lokalhire_apk_url', DEFAULT_GITHUB_APK_URL)
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
   const handleCopy = () => {
-    navigator.clipboard?.writeText?.(customGithubUrl)
+    navigator.clipboard?.writeText?.(apkUrl)
     setCopied(true)
-    onNotify('🔗 GitHub APK download link copied!')
+    onNotify('🔗 APK download link copied!')
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -38,7 +59,7 @@ export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl = GIT
       return
     }
     setSent(true)
-    onNotify(`📲 GitHub APK link sent to +91 ${phone}!`)
+    onNotify(`📲 APK link sent to +91 ${phone}!`)
     setTimeout(() => {
       setSent(false)
       setPhone('')
@@ -47,8 +68,18 @@ export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl = GIT
   }
 
   const handleDownloadApk = () => {
-    onNotify('⬇️ Downloading lokalhire.apk from GitHub Releases...')
-    window.open(customGithubUrl, '_blank', 'noopener,noreferrer')
+    onNotify('⬇️ Opening APK download link...')
+    window.open(apkUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleSaveUrl = (e) => {
+    e.preventDefault()
+    if (tempUrl.trim()) {
+      setApkUrl(tempUrl.trim())
+      localStorage.setItem('lokalhire_apk_url', tempUrl.trim())
+      setIsEditing(false)
+      onNotify('✅ Custom APK URL saved!')
+    }
   }
 
   return (
@@ -86,15 +117,15 @@ export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl = GIT
                 ACTIVE RELEASE (ANDROID)
               </span>
               <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
-                v2.4.1 (22.4 MB)
+                v2.4.1 (Stable)
               </span>
             </div>
 
             <h4 className="text-sm font-bold text-slate-900 mb-1">
-              Download lokalhire.apk from GitHub
+              Download LokalHire.apk
             </h4>
             <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-              Directly download the official signed APK file from our GitHub release repository.
+              Official signed APK release from Bhuvaneshdarkfire/lokalhire-Web.
             </p>
 
             <button
@@ -103,9 +134,46 @@ export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl = GIT
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm cursor-pointer"
             >
               <Download className="w-4 h-4 text-white" />
-              <span>Download lokalhire.apk</span>
+              <span>Download LokalHire.apk</span>
               <ExternalLink className="w-3.5 h-3.5 text-emerald-200" />
             </button>
+
+            {/* Quick Link Editor in Modal */}
+            <div className="mt-3 pt-2.5 border-t border-emerald-200/70 flex items-center justify-between text-[11px] text-emerald-900">
+              <span className="truncate max-w-[240px] text-slate-600 font-mono text-[10px]">
+                {apkUrl}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setTempUrl(apkUrl)
+                  setIsEditing(!isEditing)
+                }}
+                className="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 shrink-0"
+              >
+                <Edit2 className="w-3 h-3" />
+                <span>{isEditing ? 'Cancel' : 'Change Link'}</span>
+              </button>
+            </div>
+
+            {isEditing && (
+              <form onSubmit={handleSaveUrl} className="mt-2.5 pt-2 border-t border-emerald-200/60 flex gap-1.5">
+                <input
+                  type="url"
+                  value={tempUrl}
+                  onChange={(e) => setTempUrl(e.target.value)}
+                  placeholder="Paste GitHub APK URL"
+                  className="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="bg-slate-900 text-white font-semibold text-xs px-3 py-1.5 rounded-lg"
+                >
+                  Save
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Quick 2 App store badges (MARKED COMING SOON) */}
@@ -164,7 +232,7 @@ export function DownloadModal({ isOpen, onClose, onNotify, customGithubUrl = GIT
             </div>
 
             <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600 leading-relaxed">
-              <li>Tap <strong>Download lokalhire.apk</strong> (tap "Download anyway" if prompted).</li>
+              <li>Tap <strong>Download LokalHire.apk</strong> (tap "Download anyway" if prompted).</li>
               <li>Open the downloaded file &amp; tap <strong>"Allow from this source"</strong> if requested.</li>
               <li>Tap <strong>"Install"</strong> and launch LOKALHIRE!</li>
             </ol>
