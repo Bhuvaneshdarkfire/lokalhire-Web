@@ -12,14 +12,29 @@ import {
   Bell,
   Star,
   Copy,
-  Check
+  Check,
+  ExternalLink,
+  Clock,
+  HelpCircle,
+  FileCheck,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Settings,
+  Shield
 } from 'lucide-react'
 
-export function DownloadSection({ onNotify }) {
+// Default GitHub repository APK download link (customizable or overrideable)
+export const GITHUB_APK_URL = 'https://github.com/lokalhire/lokalhire-app/releases/latest/download/lokalhire.apk'
+
+export function DownloadSection({ onNotify, customGithubUrl = GITHUB_APK_URL }) {
   const [phoneInput, setPhoneInput] = useState('')
   const [smsSending, setSmsSending] = useState(false)
   const [smsSent, setSmsSent] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
+  const [showInstallGuide, setShowInstallGuide] = useState(false)
+  const [apkUrl, setApkUrl] = useState(customGithubUrl)
+  const [editingUrl, setEditingUrl] = useState(false)
 
   const handleSendLink = (e) => {
     e.preventDefault()
@@ -32,31 +47,22 @@ export function DownloadSection({ onNotify }) {
     setTimeout(() => {
       setSmsSending(false)
       setSmsSent(true)
-      onNotify(`📲 App download link sent to ${phoneInput}!`)
+      onNotify(`📲 APK download link sent to +91 ${phoneInput} via SMS / WhatsApp!`)
       setTimeout(() => setSmsSent(false), 5000)
       setPhoneInput('')
     }, 600)
   }
 
   const handleDownloadApk = () => {
-    // Create an immediate downloadable mock APK file for users
-    const element = document.createElement('a')
-    const file = new Blob([
-      'LOKALHIRE Mobile Application Package (Simulated v2.4.1 Production Build for Android).\n\nApp: LOKALHIRE Hyperlocal Job Platform\nVersion: 2.4.1\nSize: 22.4 MB\nPackage: in.lokalhire.app\nVerified Signature: SHA-256 Validated\n\nThank you for installing Lokalhire. Open on Android to begin!'
-    ], { type: 'application/vnd.android.package-archive' })
-    element.href = URL.createObjectURL(file)
-    element.download = 'lokalhire-v2.4.1.apk'
-    document.body.appendChild(element)
-    element.click()
-    document.body.removeChild(element)
-
-    onNotify('⬇️ Downloading Lokalhire APK (v2.4.1)... Check your downloads!')
+    onNotify('⬇️ Initiating GitHub APK download: lokalhire.apk...')
+    // Open GitHub APK release URL in a clean tab or trigger direct download
+    window.open(apkUrl, '_blank', 'noopener,noreferrer')
   }
 
   const handleCopyLink = () => {
-    navigator.clipboard?.writeText?.(window.location.origin + '#download')
+    navigator.clipboard?.writeText?.(apkUrl)
     setCopiedLink(true)
-    onNotify('🔗 App download link copied to clipboard!')
+    onNotify('🔗 GitHub APK download URL copied to clipboard!')
     setTimeout(() => setCopiedLink(false), 2000)
   }
 
@@ -68,20 +74,20 @@ export function DownloadSection({ onNotify }) {
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
             <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Mobile App Available Now</span>
+            <span>Android APK v2.4.1 Released • iOS &amp; Play Store Coming Soon</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 font-display">
             Download the <span className="text-emerald-600">Lokalhire App</span>
           </h2>
           <p className="text-base text-slate-600 leading-relaxed">
             Get instant GPS notifications when nearby businesses post roles. 
-            Apply in 5 seconds and chat directly with store owners on your phone.
+            Download the official Android APK directly from our GitHub releases.
           </p>
         </div>
 
         {/* Main White Download Hub Container */}
         <div className="bg-slate-50/70 rounded-3xl border border-slate-200 p-6 sm:p-10 lg:p-12 shadow-sm">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             
             {/* Left Column: Direct Download Badges & Options */}
             <div className="lg:col-span-7 space-y-8">
@@ -90,87 +96,239 @@ export function DownloadSection({ onNotify }) {
                   Choose your preferred download method
                 </h3>
                 <p className="text-sm text-slate-600">
-                  Available for Android & iOS devices. Free download, zero ads, no hidden fees for job seekers.
+                  Android APK available now via GitHub. Google Play Store and Apple iOS App Store releases are in certification.
                 </p>
               </div>
 
               {/* Download Buttons Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                {/* Google Play Store */}
-                <button
-                  type="button"
-                  onClick={() => onNotify('Redirecting to Google Play Store (Lokalhire App)...')}
-                  className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 p-4 rounded-2xl shadow-xs transition flex items-center gap-3.5 text-left group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
-                    <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
-                      <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">GET IT ON</div>
-                    <div className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">Google Play</div>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                      <span>4.8 • 50K+ Downloads</span>
+                {/* 1. PRIMARY: DIRECT GITHUB APK DOWNLOAD (LIVE NOW) */}
+                <div className="sm:col-span-2 bg-gradient-to-br from-emerald-500/10 via-white to-blue-50/40 border-2 border-emerald-500 rounded-3xl p-5 sm:p-6 shadow-md transition-all hover:shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-600/30">
+                        <Download className="w-7 h-7 text-white animate-bounce" />
+                      </div>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs uppercase font-extrabold text-emerald-700 tracking-wider">
+                            OFFICIAL GITHUB RELEASE
+                          </span>
+                          <span className="bg-emerald-100 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            v2.4.1 Stable (22.4 MB)
+                          </span>
+                          <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-blue-600" /> Verified Clean
+                          </span>
+                        </div>
+                        <h4 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
+                          Download lokalhire.apk
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          Hosted securely on GitHub Releases • Instant install on all Android phones (8.0+)
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleDownloadApk}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-2xl transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/25 cursor-pointer"
+                      >
+                        <Download className="w-4 h-4 text-white" />
+                        <span>Download APK</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-emerald-200" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowInstallGuide(!showInstallGuide)}
+                        className="bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-3 rounded-2xl border border-slate-200 transition flex items-center justify-center gap-1.5"
+                      >
+                        <HelpCircle className="w-4 h-4 text-slate-500" />
+                        <span>Install Steps</span>
+                        {showInstallGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
                     </div>
                   </div>
-                </button>
 
-                {/* Apple App Store */}
-                <button
-                  type="button"
-                  onClick={() => onNotify('Redirecting to Apple App Store (Lokalhire for iOS)...')}
-                  className="bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 p-4 rounded-2xl shadow-xs transition flex items-center gap-3.5 text-left group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
-                    <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
-                      <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.69C20.06,16.74 19.67,18.11 18.71,19.5M15.97,5.17C16.63,4.37 17.08,3.26 16.96,2.15C16,2.19 14.84,2.78 14.18,3.58C13.59,4.28 13.07,5.41 13.21,6.5C14.28,6.58 15.35,5.93 15.97,5.17Z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">DOWNLOAD ON THE</div>
-                    <div className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">App Store</div>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                      <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                      <span>4.9 • iOS 15.0 or later</span>
+                  {/* GitHub URL configurator snippet */}
+                  <div className="mt-4 pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                    <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis">
+                      <span className="font-semibold text-slate-700">Source:</span>
+                      <code className="text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-800 font-mono select-all">
+                        {apkUrl}
+                      </code>
                     </div>
-                  </div>
-                </button>
-
-                {/* Direct Android APK Button */}
-                <button
-                  type="button"
-                  onClick={handleDownloadApk}
-                  className="bg-white hover:bg-emerald-50/60 border-2 border-emerald-500/40 hover:border-emerald-600 p-4 rounded-2xl shadow-xs transition flex items-center gap-3.5 text-left sm:col-span-2 group"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-emerald-600/30">
-                    <Download className="w-6 h-6 text-white group-hover:translate-y-0.5 transition" />
-                  </div>
-                  <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs uppercase font-bold text-emerald-700 tracking-wider">DIRECT APK DOWNLOAD</span>
-                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">v2.4.1 (22.4 MB)</span>
-                    </div>
-                    <div className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">
-                      Download Lokalhire APK for Android
-                    </div>
-                    <div className="text-xs text-slate-500 mt-0.5">
-                      Direct install without Play Store • Works on all Android 8.0+ phones
+                      <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        className="hover:text-emerald-700 font-semibold flex items-center gap-1 transition"
+                      >
+                        {copiedLink ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedLink ? 'Copied' : 'Copy URL'}</span>
+                      </button>
+                      <span>•</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const input = window.prompt('Enter your GitHub APK release URL:', apkUrl)
+                          if (input && input.trim()) {
+                            setApkUrl(input.trim())
+                            onNotify('✅ GitHub APK link updated!')
+                          }
+                        }}
+                        className="text-blue-600 hover:text-blue-800 font-semibold text-[11px] flex items-center gap-1"
+                      >
+                        <Settings className="w-3 h-3" />
+                        <span>Change Link</span>
+                      </button>
                     </div>
                   </div>
-                </button>
+                </div>
 
+                {/* 2. GOOGLE PLAY STORE — COMING SOON */}
+                <div className="relative bg-white/90 border border-slate-200 p-4 rounded-2xl shadow-xs transition flex items-center justify-between gap-3 text-left overflow-hidden group">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 opacity-85">
+                      <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
+                        <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.5,12.92 20.16,13.19L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">GET IT ON</div>
+                      <div className="text-base font-bold text-slate-900">Google Play</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">Under Review</div>
+                    </div>
+                  </div>
+
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+                    Coming Soon
+                  </span>
+                </div>
+
+                {/* 3. APPLE APP STORE — COMING SOON */}
+                <div className="relative bg-white/90 border border-slate-200 p-4 rounded-2xl shadow-xs transition flex items-center justify-between gap-3 text-left overflow-hidden group">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 opacity-85">
+                      <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
+                        <path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.69C20.06,16.74 19.67,18.11 18.71,19.5M15.97,5.17C16.63,4.37 17.08,3.26 16.96,2.15C16,2.19 14.84,2.78 14.18,3.58C13.59,4.28 13.07,5.41 13.21,6.5C14.28,6.58 15.35,5.93 15.97,5.17Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">DOWNLOAD ON THE</div>
+                      <div className="text-base font-bold text-slate-900">App Store</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">iOS 16.0+ Build</div>
+                    </div>
+                  </div>
+
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-800 border border-amber-200 shrink-0">
+                    Coming Soon
+                  </span>
+                </div>
+
+              </div>
+
+              {/* Step-by-Step APK Installation Guide */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-sm font-bold text-slate-900">
+                      Step-by-Step: How to Install lokalhire.apk on Android
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowInstallGuide(!showInstallGuide)}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+                  >
+                    {showInstallGuide ? 'Hide Steps' : 'View Full Guide'}
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+                  Installing directly from GitHub gives you immediate access to verified local job openings before the Play Store rollout.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Step 1 */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                    <div>
+                      <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold mb-2 shadow-xs">
+                        1
+                      </span>
+                      <h5 className="text-xs font-bold text-slate-900">Download APK</h5>
+                      <p className="text-[11px] text-slate-600 mt-1 leading-normal">
+                        Tap <strong>"Download APK"</strong> above or visit our GitHub Releases page. Tap "Download anyway" if Chrome shows a standard warning.
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-emerald-700 font-semibold mt-2">File: lokalhire.apk</span>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                    <div>
+                      <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold mb-2 shadow-xs">
+                        2
+                      </span>
+                      <h5 className="text-xs font-bold text-slate-900">Allow Unknown Sources</h5>
+                      <p className="text-[11px] text-slate-600 mt-1 leading-normal">
+                        When opening the file, tap <strong>Settings</strong> &gt; toggle <strong>"Allow from this source"</strong> (for Chrome / Files app).
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-blue-700 font-semibold mt-2">Standard Android Security</span>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
+                    <div>
+                      <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold mb-2 shadow-xs">
+                        3
+                      </span>
+                      <h5 className="text-xs font-bold text-slate-900">Install &amp; Log In</h5>
+                      <p className="text-[11px] text-slate-600 mt-1 leading-normal">
+                        Tap <strong>"Install"</strong>, then tap <strong>"Open"</strong>. Enter your phone number to sign in and activate your local radar!
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-indigo-700 font-semibold mt-2">Ready in ~15 seconds</span>
+                  </div>
+                </div>
+
+                {/* Additional tips if user expanded the guide */}
+                {showInstallGuide && (
+                  <div className="mt-4 pt-4 border-t border-slate-200 space-y-2 text-xs text-slate-600 animate-in fade-in">
+                    <div className="flex items-start gap-2 bg-blue-50/70 p-3 rounded-xl border border-blue-100">
+                      <Shield className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-slate-900 font-semibold">Why does Android show a warning?</strong>
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                          Android displays a standard prompt for any app downloaded outside the Play Store. Lokalhire's APK is signed, SHA-256 validated, virus-free, and contains zero trackers.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-slate-900 font-semibold">Automatic Update Notifications:</strong>
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                          Once installed, the app checks our GitHub release channel automatically so you never miss new features.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Send App Link via SMS / WhatsApp */}
               <div className="bg-white p-5 rounded-2xl border border-slate-200">
                 <div className="text-sm font-bold text-slate-900 mb-1">
-                  Send download link to your phone
+                  Send GitHub APK link directly to your phone
                 </div>
                 <div className="text-xs text-slate-500 mb-3">
-                  Enter your mobile number to receive a direct WhatsApp / SMS link to download:
+                  Enter your mobile number to receive the direct download link via WhatsApp / SMS:
                 </div>
 
                 <form onSubmit={handleSendLink} className="flex flex-col sm:flex-row items-stretch gap-2">
@@ -188,7 +346,7 @@ export function DownloadSection({ onNotify }) {
                   <button
                     type="submit"
                     disabled={smsSending}
-                    className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shrink-0"
+                    className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
                   >
                     {smsSending ? (
                       <span>Sending link...</span>
@@ -218,13 +376,17 @@ export function DownloadSection({ onNotify }) {
               <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md w-full max-w-sm text-center space-y-4">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-500 border-b border-slate-100 pb-3">
                   <span className="flex items-center gap-1 text-slate-900">
-                    <QrCode className="w-4 h-4 text-emerald-600" /> Instant Install
+                    <QrCode className="w-4 h-4 text-emerald-600" /> Scan to Download APK
                   </span>
                   <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">Camera Ready</span>
                 </div>
 
-                {/* Crisp SVG QR Code */}
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mx-auto group cursor-pointer" onClick={handleDownloadApk}>
+                {/* Crisp SVG QR Code pointing directly to GitHub APK download */}
+                <div
+                  className="p-4 bg-slate-50 rounded-2xl border border-slate-200 inline-block mx-auto group cursor-pointer hover:border-emerald-500 transition-colors"
+                  onClick={handleDownloadApk}
+                  title="Click to Download lokalhire.apk"
+                >
                   <svg className="w-44 h-44 mx-auto" viewBox="0 0 100 100" fill="currentColor">
                     {/* Top-left position marker */}
                     <rect x="10" y="10" width="22" height="22" rx="3" fill="#0f172a" />
@@ -295,17 +457,17 @@ export function DownloadSection({ onNotify }) {
 
                 <div className="space-y-1">
                   <div className="text-xs font-bold text-slate-900">
-                    Scan with any phone camera
+                    Scan with your Android phone
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    Opens direct installer on Android or iOS
+                    Directly downloads <strong>lokalhire.apk</strong> from GitHub
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="w-full py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5 transition"
+                  className="w-full py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   {copiedLink ? (
                     <>
@@ -315,7 +477,7 @@ export function DownloadSection({ onNotify }) {
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Copy Download Link</span>
+                      <span>Copy GitHub APK Link</span>
                     </>
                   )}
                 </button>
@@ -325,9 +487,9 @@ export function DownloadSection({ onNotify }) {
               <div className="mt-4 flex flex-col gap-1.5 text-xs text-slate-500 text-center">
                 <span className="flex items-center justify-center gap-1 text-slate-700 font-medium">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  SHA-256 Verified APK • No malware / Spyware
+                  GitHub Release • Verified SHA-256 Checksum
                 </span>
-                <span>Works on low-spec phones (Android 8.0 & above)</span>
+                <span>Requires Android 8.0 (Oreo) or higher</span>
               </div>
 
             </div>
