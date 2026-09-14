@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
 import { BenefitsSection } from './components/BenefitsSection'
@@ -15,10 +15,57 @@ import { CommuteCalculator } from './components/CommuteCalculator'
 import { StoriesSection } from './components/StoriesSection'
 import { Footer } from './components/Footer'
 import { DownloadModal } from './components/DownloadModal'
+import { VerificationDonePage } from './components/VerificationDonePage'
 import { initialJobs, initialCandidates } from './data/mockData'
 import { CheckCircle2, X } from 'lucide-react'
 
+function isVerificationRoute() {
+  const path = window.location.pathname.toLowerCase().replace(/\/$/, '')
+  const hash = window.location.hash.toLowerCase()
+  const search = window.location.search.toLowerCase()
+
+  const matchTargets = [
+    '/verification-done',
+    '/verification_done',
+    '/verificationdone',
+    '/verification',
+    '#verification-done',
+    '#verification_done',
+    '#verificationdone',
+    '#verification'
+  ]
+
+  return (
+    matchTargets.some((target) => path.endsWith(target) || hash.includes(target)) ||
+    search.includes('verification=done') ||
+    search.includes('verification_done') ||
+    search.includes('verified=true')
+  )
+}
+
 export function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname)
+  const [currentHash, setCurrentHash] = useState(window.location.hash)
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname)
+      setCurrentHash(window.location.hash)
+    }
+
+    window.addEventListener('popstate', handleLocationChange)
+    window.addEventListener('hashchange', handleLocationChange)
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange)
+      window.removeEventListener('hashchange', handleLocationChange)
+    }
+  }, [])
+
+  // If user navigates to verification done route
+  if (isVerificationRoute()) {
+    return <VerificationDonePage />
+  }
   const [jobs, setJobs] = useState(initialJobs)
   const [candidates] = useState(initialCandidates)
   const [savedJobs, setSavedJobs] = useState(['job-1'])
