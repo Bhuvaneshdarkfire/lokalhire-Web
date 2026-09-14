@@ -1,0 +1,8 @@
+{
+  "name": "LOKALHIRE",
+  "description": "Hyperlocal hiring platform connecting local talent with nearby businesses for faster, community-focused employment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
