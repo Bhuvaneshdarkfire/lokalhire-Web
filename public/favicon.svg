@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="50%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="glowPin" x1="0" y1="0" x2="0" y2="100%" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle with subtle border -->
+  <rect x="16" y="16" width="480" height="480" rx="128" fill="url(#bgGrad)"/>
+  <rect x="16" y="16" width="480" height="480" rx="128" stroke="#ffffff" stroke-width="8" stroke-opacity="0.2"/>
+
+  <!-- Concentric radar waves -->
+  <circle cx="256" cy="220" r="160" stroke="#ffffff" stroke-width="6" stroke-dasharray="12 14" stroke-opacity="0.25"/>
+  <circle cx="256" cy="220" r="110" stroke="#ffffff" stroke-width="8" stroke-opacity="0.4"/>
+  <circle cx="256" cy="220" r="60" stroke="#ffffff" stroke-width="8" stroke-opacity="0.6"/>
+
+  <!-- Radar ping pulse point -->
+  <circle cx="340" cy="140" r="12" fill="#34d399"/>
+  <circle cx="340" cy="140" r="22" stroke="#34d399" stroke-width="4" stroke-opacity="0.5"/>
+
+  <!-- Central Map Pin & Connecting Handshake / Briefcase Node -->
+  <g filter="url(#shadow)">
+    <!-- Map Pin Path -->
+    <path d="M256 90C194.14 90 144 140.14 144 202C144 282 256 390 256 390C256 390 368 282 368 202C368 140.14 317.86 90 256 90Z" fill="url(#glowPin)"/>
+    <!-- Pin Core Cutout with Hyperlocal 'L' & Dynamic Radar Node -->
+    <circle cx="256" cy="198" r="48" fill="#1e40af"/>
+    <!-- Central Monogram 'L' with arrow motion -->
+    <path d="M242 174V220H272" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Small location pulse dot -->
+    <circle cx="270" cy="180" r="6" fill="#10b981"/>
+  </g>
+
+  <!-- Walking / Pedestrian Proximity Base Arc -->
+  <path d="M160 410C188 430 220 442 256 442C292 442 324 430 352 410" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-opacity="0.7"/>
+</svg>
