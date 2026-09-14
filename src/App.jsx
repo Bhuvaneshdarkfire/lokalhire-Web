@@ -1,10 +1,17 @@
 import { useState } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './components/Hero'
+import { BenefitsSection } from './components/BenefitsSection'
+import { ProblemSolutionSection } from './components/ProblemSolutionSection'
+import { MatchEngineSection } from './components/MatchEngineSection'
+import { HowItWorks } from './components/HowItWorks'
+import { LiveOpeningsSection } from './components/LiveOpeningsSection'
+import { ImpactMetricsSection } from './components/ImpactMetricsSection'
+import { RoadmapSection } from './components/RoadmapSection'
+import { CallToActionSection } from './components/CallToActionSection'
 import { DownloadSection } from './components/DownloadSection'
 import { JobSearchSection } from './components/JobSearchSection'
 import { CommuteCalculator } from './components/CommuteCalculator'
-import { HowItWorks } from './components/HowItWorks'
 import { StoriesSection } from './components/StoriesSection'
 import { Footer } from './components/Footer'
 import { DownloadModal } from './components/DownloadModal'
@@ -15,7 +22,7 @@ export function App() {
   const [jobs, setJobs] = useState(initialJobs)
   const [candidates] = useState(initialCandidates)
   const [savedJobs, setSavedJobs] = useState(['job-1'])
-  const [activeNeighborhood, setActiveNeighborhood] = useState('Indiranagar')
+  const [activeNeighborhood, setActiveNeighborhood] = useState('Bengaluru (Vijayanagar)')
   const [available, setAvailable] = useState(true)
   const [downloadModalOpen, setDownloadModalOpen] = useState(false)
   const [perspective, setPerspective] = useState('talent') // 'talent' or 'business'
@@ -46,6 +53,7 @@ export function App() {
   const handleSearchFromHero = (query, radius) => {
     setExternalSearch(query)
     setExternalRadius(radius)
+    showToast(`🔍 Searching for "${query || 'all roles'}" within ${radius} km`)
   }
 
   const handlePerspectiveChange = (mode) => {
@@ -57,9 +65,20 @@ export function App() {
     }
   }
 
+  const handleApplyRole = (job) => {
+    showToast(`🎉 1-Tap Application sent to ${job.store} for ${job.role}! Verified SMS confirmation triggered.`)
+  }
+
   return (
-    <div className="min-h-screen bg-white text-slate-900 selection:bg-emerald-100 selection:text-emerald-900 font-sans antialiased">
-      {/* Navbar with dual perspective toggle */}
+    <div className="bg-[#f6f8fc] text-[#0f172a] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden min-h-screen font-sans antialiased">
+      {/* Ambient Ethereal Glow Mesh */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[650px] bg-gradient-to-b from-blue-100/60 via-indigo-50/40 to-transparent rounded-full blur-[140px]" />
+        <div className="absolute top-[38%] -right-32 w-[650px] h-[650px] bg-emerald-100/40 rounded-full blur-[160px]" />
+        <div className="absolute bottom-[20%] -left-32 w-[700px] h-[700px] bg-blue-100/40 rounded-full blur-[180px]" />
+      </div>
+
+      {/* iOS Frosted Glass Sticky Header */}
       <Navbar
         onOpenDownload={() => setDownloadModalOpen(true)}
         activeNeighborhood={activeNeighborhood}
@@ -80,44 +99,72 @@ export function App() {
         onPerspectiveChange={handlePerspectiveChange}
       />
 
-      {/* Hero with dual value proposition for Talent & Businesses, live radar mockup, and typography-focused design */}
-      <Hero
-        onOpenDownload={() => setDownloadModalOpen(true)}
-        onSearchSubmit={handleSearchFromHero}
-        activeNeighborhood={activeNeighborhood}
-        activePerspective={perspective}
-        onPerspectiveChange={handlePerspectiveChange}
-      />
+      <main className="w-full pt-20 relative z-10">
+        {/* 1. HERO SECTION WITH 3D GEOSPATIAL SCENE & FLOATING FROSTED GLASS CARDS */}
+        <Hero
+          onOpenDownload={() => setDownloadModalOpen(true)}
+          onSearchSubmit={handleSearchFromHero}
+          activeNeighborhood={activeNeighborhood}
+          activePerspective={perspective}
+          onPerspectiveChange={handlePerspectiveChange}
+        />
 
-      {/* Prominent App Download Section explicitly requested by user */}
-      <DownloadSection onNotify={showToast} />
+        {/* 2. PRODUCT HIGHLIGHTS & WHY HYPERLOCAL (Spacious Bento Grid) */}
+        <BenefitsSection />
 
-      {/* Live Job Search and Employer Portal synced with current perspective */}
-      <JobSearchSection
-        jobs={jobs}
-        candidates={candidates}
-        savedJobs={savedJobs}
-        onToggleSave={handleToggleSave}
-        onAddNewJob={handleAddNewJob}
-        onNotify={showToast}
-        onOpenDownload={() => setDownloadModalOpen(true)}
-        activeNeighborhood={activeNeighborhood}
-        externalSearchQuery={externalSearch}
-        externalRadius={externalRadius}
-        perspective={perspective}
-        onPerspectiveChange={handlePerspectiveChange}
-      />
+        {/* 3. CLEAN VISUAL COMPARISON: TRADITIONAL VS LOKALHIRE 3D GEOSPATIAL ENGINE */}
+        <ProblemSolutionSection />
 
-      {/* Interactive Commute Savings Calculator */}
-      <CommuteCalculator onOpenDownload={() => setDownloadModalOpen(true)} />
+        {/* 4. INTERACTIVE MATCH ENGINE SHOWCASE (Radial Match Visualizer) */}
+        <MatchEngineSection />
 
-      {/* How it works for both Talent and Businesses */}
-      <HowItWorks />
+        {/* 5. HOW IT WORKS (Spacious Step-by-Step Dual Workflow) */}
+        <HowItWorks />
 
-      {/* Authentic Local Community Stories */}
-      <StoriesSection />
+        {/* 6. LIVE NEIGHBORHOOD OPENINGS (Authentic Indian Pilot Vacancies) */}
+        <LiveOpeningsSection
+          onOpenDownload={() => setDownloadModalOpen(true)}
+          onApplyRole={handleApplyRole}
+        />
 
-      {/* Clean White Footer */}
+        {/* Extended Interactive Portal for granular searching & posting vacancies */}
+        <section className="max-w-[1280px] mx-auto px-6 lg:px-12 py-12">
+          <JobSearchSection
+            jobs={jobs}
+            candidates={candidates}
+            savedJobs={savedJobs}
+            onToggleSave={handleToggleSave}
+            onAddNewJob={handleAddNewJob}
+            onNotify={showToast}
+            onOpenDownload={() => setDownloadModalOpen(true)}
+            activeNeighborhood={activeNeighborhood}
+            externalSearchQuery={externalSearch}
+            externalRadius={externalRadius}
+            perspective={perspective}
+            onPerspectiveChange={handlePerspectiveChange}
+          />
+        </section>
+
+        {/* 7. PILOT IMPACT METRICS (Clean Spacious Counter Cards) */}
+        <ImpactMetricsSection />
+
+        {/* Interactive Commute Savings Calculator */}
+        <CommuteCalculator onOpenDownload={() => setDownloadModalOpen(true)} />
+
+        {/* Authentic Local Community Stories */}
+        <StoriesSection />
+
+        {/* Prominent App Download Section */}
+        <DownloadSection onNotify={showToast} />
+
+        {/* 8. FUTURE ROADMAP (iOS Clean Bento Grid) */}
+        <RoadmapSection />
+
+        {/* 9. FINAL CALL TO ACTION (LOKALHIRE Community Banner) */}
+        <CallToActionSection onOpenDownload={() => setDownloadModalOpen(true)} />
+      </main>
+
+      {/* Clean Minimalist Footer */}
       <Footer onOpenDownload={() => setDownloadModalOpen(true)} />
 
       {/* Download Modal */}
