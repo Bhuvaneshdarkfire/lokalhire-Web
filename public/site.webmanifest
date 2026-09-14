@@ -1,0 +1,17 @@
+{
+  "name": "LOKALHIRE - Hyperlocal Jobs & Nearby Hiring",
+  "short_name": "LOKALHIRE",
+  "description": "Connect with verified jobs and talent within walking distance (500m - 3km).",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f8fc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

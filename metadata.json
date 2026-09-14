@@ -1,6 +1,6 @@
 {
-  "name": "LOKALHIRE",
-  "description": "Hyperlocal hiring platform connecting local talent with nearby businesses for faster, community-focused employment.",
+  "name": "LOKALHIRE - Hyperlocal Jobs & Nearby Hiring Platform",
+  "description": "Find local jobs and hire verified local talent within walking distance (500m - 3km) across Bengaluru, Hassan, Mysuru & Karnataka.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
