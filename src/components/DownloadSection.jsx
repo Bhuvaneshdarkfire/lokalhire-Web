@@ -26,14 +26,20 @@ import {
 } from 'lucide-react'
 
 // Official GitHub release APK download link
-export const DEFAULT_GITHUB_APK_URL = 'https://github.com/Bhuvaneshdarkfire/lokalhire-Web/releases/download/apk/LokalHire.apk'
+export const DEFAULT_GITHUB_APK_URL = 'https://github.com/Bhuvaneshdarkfire/lokalhire-Web/releases/download/apk/LokalHire.V2.apk'
 
 export function DownloadSection({ onNotify, customGithubUrl }) {
   // Use provided release URL, or custom override
   const [apkUrl, setApkUrl] = useState(() => {
     const saved = localStorage.getItem('lokalhire_apk_url')
-    // If user previously saved the broken 404 URL in localStorage, migrate them to the real working URL
-    if (!saved || saved.includes('releases/latest/download') || saved.includes('lokalhire/lokalhire-app')) {
+    // If user previously saved the old or broken URL in localStorage, migrate them to the real working V2 URL
+    if (
+      !saved ||
+      saved.includes('releases/latest/download') ||
+      saved.includes('lokalhire/lokalhire-app') ||
+      saved.endsWith('/LokalHire.apk') ||
+      saved.endsWith('/lokalhire.apk')
+    ) {
       localStorage.setItem('lokalhire_apk_url', DEFAULT_GITHUB_APK_URL)
       return DEFAULT_GITHUB_APK_URL
     }
@@ -116,11 +122,11 @@ export function DownloadSection({ onNotify, customGithubUrl }) {
             <p className="font-bold text-slate-900 flex items-center gap-2">
               <span>Official GitHub Release Active</span>
               <span className="bg-emerald-200/80 text-emerald-900 font-mono text-[10px] px-2 py-0.5 rounded-full font-bold">
-                tag: apk
+                tag: apk • V2
               </span>
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Direct download configured to <code className="bg-white px-2 py-0.5 rounded border border-emerald-300 text-slate-900 font-mono font-semibold">LokalHire.apk</code> from <strong className="text-slate-800">Bhuvaneshdarkfire/lokalhire-Web</strong>. Tap Download APK below to install immediately.
+              Direct download configured to <code className="bg-white px-2 py-0.5 rounded border border-emerald-300 text-slate-900 font-mono font-semibold">LokalHire.V2.apk</code> from <strong className="text-slate-800">Bhuvaneshdarkfire/lokalhire-Web</strong>. Tap Download APK below to install immediately.
             </p>
           </div>
         </div>
@@ -156,14 +162,14 @@ export function DownloadSection({ onNotify, customGithubUrl }) {
                             OFFICIAL GITHUB RELEASE
                           </span>
                           <span className="bg-emerald-100 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            v2.4.1 Stable
+                            v2.0 (V2) Stable
                           </span>
                           <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                             <ShieldCheck className="w-3 h-3 text-blue-600" /> Verified Clean
                           </span>
                         </div>
                         <h4 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
-                          Download LokalHire.apk
+                          Download LokalHire.V2.apk
                         </h4>
                         <p className="text-xs text-slate-600 mt-0.5">
                           Instant install on all Android smartphones (Android 8.0+)
@@ -328,7 +334,7 @@ export function DownloadSection({ onNotify, customGithubUrl }) {
                         Tap <strong>"Download APK"</strong>. If Chrome shows <em>"File might be harmful"</em>, tap <strong>"Download anyway"</strong>.
                       </p>
                     </div>
-                    <span className="text-[10px] text-emerald-700 font-semibold mt-2">File: LokalHire.apk</span>
+                    <span className="text-[10px] text-emerald-700 font-semibold mt-2">File: LokalHire.V2.apk</span>
                   </div>
 
                   {/* Step 2 */}
@@ -514,7 +520,7 @@ export function DownloadSection({ onNotify, customGithubUrl }) {
                     Scan with your Android phone
                   </div>
                   <div className="text-[11px] text-slate-500">
-                    Directly downloads <strong>LokalHire.apk</strong>
+                    Directly downloads <strong>LokalHire.V2.apk</strong>
                   </div>
                 </div>
 
